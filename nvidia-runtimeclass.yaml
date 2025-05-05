@@ -2,4 +2,6 @@ apiVersion: node.k8s.io/v1
 kind: RuntimeClass
 metadata:
   name: nvidia
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: ""
 handler: nvidia

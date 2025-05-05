@@ -10,7 +10,7 @@ install_nvidia_toolkit() {
 
     sed -i -e '/experimental/ s/^#//g' /etc/apt/sources.list.d/nvidia-container-toolkit.list
     apt update
-    apt install -y nvidia-container-toolkit nvidia-container-runtime cuda-drivers-fabricmanager-535 nvidia-headless-535-server nvidia-utils-535-server
+    apt install -y nvidia-container-toolkit nvidia-container-runtime cuda-drivers-fabricmanager-535 nvidia-headless-535-server nvidia-utils-535-server 
 }
 
 install_kubectl() {
@@ -19,12 +19,20 @@ install_kubectl() {
 }
 
 setup_gpu_on_k3s() {
-    curl -sfL http://get.k3s.io | K3S_URL=https://10.1.0.21:6443 sh -s -
-    nvidia-ctk runtime configure --runtime=containerd
-    ctr image pull docker.io/nvidia/cuda:12.3.2-base-ubuntu22.04
-    ctr run --rm --gpus 0 -t docker.io/nvidia/cuda:12.3.2-base-ubuntu22.04 cuda-12.3.2-base-ubuntu22.04 nvidia-smi
-    kubectl apply -f nvidia-runtimeclass.yaml
-    kubectl apply -f nvidia-device-plugin.yaml 
+    export K3S_KUBECONFIG_MODE="644"
+    curl -sfL http://get.k3s.io | sh -
+
+    nvidia-ctk runtime configure --runtime=containerdWarning: resource runtimeclasses/nvidia is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+
+    echo "[INFO]  Configuring, please wait..."
+    sleep 5s
+    echo "[INFO]  Done!"
+
+    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    kubectl create ns gpu-setup
+    kubectl apply -f nvidia-runtimeclass.yaml -n gpu-setup
+    kubectl apply -f nvidia-device-plugin.yaml
+    kubectl apply -f init-pod.yaml -n gpu-setup
 }
 
 install_nvidia_toolkit

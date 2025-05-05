@@ -7,8 +7,5 @@ spec:
   containers:
   - name: cuda-test
     image: nvidia/cuda:12.3.2-base-ubuntu22.04
-    command: &#91;"nvidia-smi"]
-    resources:
-      limits:
-        nvidia.com/gpu: 1
+    command: ["nvidia-smi"]
   restartPolicy: OnFailure
