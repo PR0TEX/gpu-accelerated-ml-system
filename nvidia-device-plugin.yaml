@@ -15,15 +15,6 @@ spec:
         name: nvidia-device-plugin-ds
     spec:
       runtimeClassName: nvidia
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #       - matchExpressions:
-      #         - key: workload
-      #           operator: In
-      #           values:
-      #           - "ai"
       tolerations:
       - key: nvidia.com/gpu
         operator: Exists
@@ -38,7 +29,7 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
-            drop: &#91;"ALL"]
+            drop: ["ALL"]
         volumeMounts:
           - name: device-plugin
             mountPath: /var/lib/kubelet/device-plugins
