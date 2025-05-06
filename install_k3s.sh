@@ -1,16 +1,16 @@
 #!/bin/bash
 
 install_nvidia_toolkit() {
-    apt install -y curl
-    curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes &&
-        curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list |
-        sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' |
+    sudo apt-get install -y curl
+    sudo curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg --yes &&
+        sudo curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list |
+        sudo sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' |
             sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
 
-    sed -i -e '/experimental/ s/^#//g' /etc/apt/sources.list.d/nvidia-container-toolkit.list
-    apt update
-    apt install -y nvidia-container-toolkit nvidia-container-runtime cuda-drivers-fabricmanager-535 nvidia-headless-535-server nvidia-utils-535-server 
+    sudo sed -i -e '/experimental/ s/^#//g' /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    sudo apt-get update
+    sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime cuda-drivers-fabricmanager-535 nvidia-headless-535-server nvidia-utils-535-server 
 }
 
 install_kubectl() {
@@ -29,10 +29,13 @@ setup_gpu_on_k3s() {
     echo "[INFO]  Done!"
 
     export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    
     kubectl create ns gpu-setup
-    kubectl apply -f nvidia-runtimeclass.yaml -n gpu-setup
-    kubectl apply -f nvidia-device-plugin.yaml
-    kubectl apply -f init-pod.yaml -n gpu-setup
+    kubectl apply -f $SCRIPT_DIR/nvidia-runtimeclass.yaml -n gpu-setup
+    kubectl apply -f $SCRIPT_DIR/nvidia-device-plugin.yaml
+    kubectl apply -f $SCRIPT_DIR/init-pod.yaml -n gpu-setup
 }
 
 install_nvidia_toolkit
