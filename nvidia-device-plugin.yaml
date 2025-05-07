@@ -15,15 +15,6 @@ spec:
         name: nvidia-device-plugin-ds
     spec:
       runtimeClassName: nvidia
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #       - matchExpressions:
-      #         - key: workload
-      #           operator: In
-      #           values:
-      #           - "ai"
       tolerations:
       - key: nvidia.com/gpu
         operator: Exists
