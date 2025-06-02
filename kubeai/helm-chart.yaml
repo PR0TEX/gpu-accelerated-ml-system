@@ -1,0 +1,9 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kubeai
+  namespace: kubeai
+spec:
+  repo: https://www.kubeai.org
+  chart: kubeai
+  targetNamespace: kubeai

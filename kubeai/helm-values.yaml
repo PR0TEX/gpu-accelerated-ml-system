@@ -1,0 +1,24 @@
+apiVersion: kubeai.org/v1
+kind: ResourceProfile
+metadata:
+  name: nvidia-gpu-1660ti
+  namespace: kubeai
+spec:
+  nodeSelector:
+    nvidia.com/gpu.product: "NVIDIA GeForce GTX 1660 Ti"
+  limits:
+    nvidia.com/gpu: "1"
+  requests:
+    nvidia.com/gpu: "1"
+    memory: "6Gi"
+resourceProfiles:
+  nvidia-1660ti:
+    nodeSelector:
+      gpu-type: 1660ti
+    limits:
+      nvidia.com/gpu: "1"
+    requests:
+      nvidia.com/gpu: "1"
+      cpu: "4"
+      memory: "6Gi"
+
