@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: llm-train-
+spec:
+  entrypoint: train-llm
+  templates:
+    - name: train-llm
+      container:
+        image: your-dockerhub-username/llm-trainer:latest
+        command: ["python3"]
+        args: ["train.py"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: 8Gi
+            cpu: "4"
+  podSpecPatch: |
+    containers:
+    - name: main
+      securityContext:
+        capabilities:
+          add: ["SYS_ADMIN"]

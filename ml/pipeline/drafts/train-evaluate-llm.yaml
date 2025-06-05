@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: llm-train-eval-
+spec:
+  entrypoint: train-evaluate
+  templates:
+    - name: train-evaluate
+      steps:
+        - - name: train-step
+            template: train
+        - - name: evaluate-step
+            template: evaluate
+            arguments:
+              artifacts:
+                - name: trained-model
+                  from: "{{steps.train-step.outputs.artifacts.trained-model}}"
+    - name: train
+      container:
+        image: your-dockerhub-username/llm-trainer:latest
+        command: ["python3"]
+        args: ["train.py"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: 8Gi
+            cpu: "4"
+      outputs:
+        artifacts:
+          - name: trained-model
+            path: /app/model
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /app/model
+    - name: evaluate
+      container:
+        image: your-dockerhub-username/llm-evaluator:latest
+        command: ["python3"]
+        args: ["evaluate.py", "--model_dir", "/app/model"]
+        volumeMounts:
+          - name: shared-volume
+            mountPath: /app/model
+      inputs:
+        artifacts:
+          - name: trained-model
+            path: /app/model
+
+  volumes:
+    - name: shared-volume
+      emptyDir: {}
+  podSpecPatch: |
+    containers:
+    - name: main
+      securityContext:
+        capabilities:
+          add: ["SYS_ADMIN"]

@@ -1,0 +1,2 @@
+kubectl port-forward svc/mlflow-service 5000:5000
+http://<node-ip>:30080

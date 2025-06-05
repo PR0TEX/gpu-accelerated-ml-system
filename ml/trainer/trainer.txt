@@ -1,0 +1,9 @@
+cd ml-pipeline/docker/trainer
+
+# Build image
+docker build -t your-dockerhub-username/llm-trainer:latest .
+
+# Push image
+docker push your-dockerhub-username/llm-trainer:latest
+
+export MLFLOW_TRACKING_URI=http://your-mlflow-url:5000

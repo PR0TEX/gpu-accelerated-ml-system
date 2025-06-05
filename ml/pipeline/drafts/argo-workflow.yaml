@@ -1,0 +1,60 @@
+# https://argo-workflows.readthedocs.io/en/latest/quick-start/
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ml-pipeline-
+spec:
+  entrypoint: ml-pipeline
+  templates:
+  - name: ml-pipeline
+    steps:
+    - - name: preprocess
+        template: preprocess
+    - - name: train
+        template: train
+    - - name: evaluate
+        template: evaluate
+    - - name: register
+        template: register
+
+  - name: preprocess
+    container:
+      image: python:3.10
+      command: [python, -c]
+      args:
+        - |
+          import json
+          with open("/mnt/data/data.json", "w") as f:
+              f.write(json.dumps({"text": "Sample training data"}))
+
+  - name: train
+    container:
+      image: your-dockerhub/llm-trainer:latest
+      command: ["python3"]
+      args: ["train.py"]
+    volumeMounts:
+      - name: data-volume
+        mountPath: /mnt/data
+
+  - name: evaluate
+    container:
+      image: your-dockerhub/llm-evaluator:latest
+      command: ["python3"]
+      args: ["evaluate.py"]
+    volumeMounts:
+      - name: data-volume
+        mountPath: /mnt/data
+
+  - name: register
+    container:
+      image: your-dockerhub/mlflow-client:latest
+      command: ["python3"]
+      args: ["register.py"]
+    volumeMounts:
+      - name: data-volume
+        mountPath: /mnt/data
+
+  volumes:
+  - name: data-volume
+    emptyDir: {}
