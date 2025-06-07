@@ -6,4 +6,4 @@ spec:
   features: [TextGeneration]
   url: ollama://mistral
   engine: OLlama
-  resourceProfile: my-custom-gpu:1
+  resourceProfile: any-cuda-gpu:1

@@ -22,7 +22,7 @@ setup_gpu_on_k3s() {
     export K3S_KUBECONFIG_MODE="644"
     curl -sfL http://get.k3s.io | sh -
 
-    nvidia-ctk runtime configure --runtime=containerdWarning: resource runtimeclasses/nvidia is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+    nvidia-ctk runtime configure --runtime=containerd
 
     echo "[INFO]  Configuring, please wait..."
     sleep 5s

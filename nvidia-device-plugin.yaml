@@ -24,16 +24,28 @@ spec:
       - image: nvcr.io/nvidia/k8s-device-plugin:v0.14.5
         name: nvidia-device-plugin-ctr
         env:
-          - name: FAIL_ON_INIT_ERROR
-            value: "false"
+        - name: FAIL_ON_INIT_ERROR
+          value: "false"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop: ["ALL"]
         volumeMounts:
-          - name: device-plugin
-            mountPath: /var/lib/kubelet/device-plugins
-      volumes:
         - name: device-plugin
-          hostPath:
-            path: /var/lib/kubelet/device-plugins
+          mountPath: /var/lib/kubelet/device-plugins
+        - name: dev
+          mountPath: /dev
+        - name: termination-log
+          mountPath: /dev/termination-log
+          readOnly: false
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+      - name: dev
+        hostPath:
+          path: /dev
+      - name: termination-log
+        hostPath:
+          path: /dev/termination-log
+          type: FileOrCreate

@@ -1,0 +1,978 @@
+---
+# Source: kubeai/charts/open-webui/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: open-webui
+  namespace: default
+  labels:
+    helm.sh/chart: open-webui-6.4.0
+    app.kubernetes.io/version: "0.6.5"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/component: open-webui
+automountServiceAccountToken: false
+---
+# Source: kubeai/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubeai
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: kubeai/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubeai-models
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: kubeai/templates/autoscalerstateconfigmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubeai-autoscaler-state
+---
+# Source: kubeai/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubeai-config
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  system.yaml: |
+    secretNames:
+      alibaba: kubeai-alibaba
+      aws: kubeai-aws
+      gcp: kubeai-gcp
+      huggingface: kubeai-huggingface
+    resourceProfiles:
+      amd-gpu-mi300x:
+        imageName: amd-gpu
+        limits:
+          amd.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: amd.com/gpu
+          operator: Equal
+          value: present
+      any-cuda-gpu:
+        limits:
+          nvidia.com/gpu: "1"
+        nodeSelector:
+          node-type: gpu
+        requests:
+          cpu: "3"
+          memory: 6Gi
+          nvidia.com/gpu: "1"
+        runtimeClassName: nvidia
+      cpu:
+        imageName: cpu
+        requests:
+          cpu: 1
+          memory: 2Gi
+      nvidia-gpu-a16:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-a100-40gb:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-a100-80gb:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-gh200:
+        imageName: gh200
+        limits:
+          nvidia.com/gpu: "1"
+        requests:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-h100:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-l4:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        requests:
+          cpu: "6"
+          memory: 24Gi
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-l40s:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        requests:
+          cpu: "6"
+          memory: 24Gi
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-rtx4070-8gb:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-t4:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        requests:
+          nvidia.com/gpu: "1"
+    cacheProfiles:
+      {}
+    modelServers:
+      FasterWhisper:
+        images:
+          default: fedirz/faster-whisper-server:latest-cpu
+          nvidia-gpu: fedirz/faster-whisper-server:latest-cuda
+      Infinity:
+        images:
+          default: michaelf34/infinity:latest
+      OLlama:
+        images:
+          default: ollama/ollama:latest
+      VLLM:
+        images:
+          amd-gpu: substratusai/vllm-rocm:nightly_main_20250120
+          cpu: substratusai/vllm:v0.6.3.post1-cpu
+          default: vllm/vllm-openai:v0.8.3
+          gh200: substratusai/vllm-gh200:v0.8.3
+          google-tpu: substratusai/vllm:v0.6.4.post1-tpu
+          nvidia-gpu: vllm/vllm-openai:v0.8.3
+    modelLoading:
+      image: substratusai/kubeai-model-loader:v0.14.0
+    modelRollouts:
+      surge: 1
+    modelServerPods:
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsUser: 0
+      serviceAccountName: kubeai-models
+    modelAutoscaling:
+      interval: 10s
+      timeWindow: 10m
+      stateConfigMapName: kubeai-autoscaler-state
+    messaging:
+      errorMaxBackoff: 30s
+      streams: []
+---
+# Source: kubeai/charts/open-webui/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: open-webui
+  namespace: default
+  labels:
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/component: open-webui
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: 2Gi
+---
+# Source: kubeai/templates/crds/kubeai.org_models.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.15.0
+  name: models.kubeai.org
+spec:
+  group: kubeai.org
+  names:
+    kind: Model
+    listKind: ModelList
+    plural: models
+    singular: model
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: Model resources define the ML models that will be served by KubeAI.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ModelSpec defines the desired state of Model.
+            properties:
+              adapters:
+                items:
+                  properties:
+                    name:
+                      description: Name must be a lowercase string with no spaces.
+                      maxLength: 63
+                      pattern: ^[a-z0-9-]+$
+                      type: string
+                    url:
+                      type: string
+                      x-kubernetes-validations:
+                      - message: adapter url must start with "hf://", "s3://", "gs://",
+                          or "oss://".
+                        rule: self.startsWith("hf://") || self.startsWith("s3://")
+                          || self.startsWith("gs://") || self.startsWith("oss://")
+                  required:
+                  - name
+                  - url
+                  type: object
+                type: array
+              args:
+                description: Args to be added to the server process.
+                items:
+                  type: string
+                type: array
+              autoscalingDisabled:
+                description: |-
+                  AutoscalingDisabled will stop the controller from managing the replicas
+                  for the Model. When disabled, metrics will not be collected on server Pods.
+                type: boolean
+              cacheProfile:
+                description: |-
+                  CacheProfile to be used for caching model artifacts.
+                  Must be a valid CacheProfile defined in the system config.
+                type: string
+                x-kubernetes-validations:
+                - message: cacheProfile is immutable.
+                  rule: self == oldSelf
+              engine:
+                description: Engine to be used for the server process.
+                enum:
+                - OLlama
+                - VLLM
+                - FasterWhisper
+                - Infinity
+                type: string
+              env:
+                additionalProperties:
+                  type: string
+                description: Env variables to be added to the server process.
+                type: object
+              envFrom:
+                description: Env variables to be added to the server process from
+                  Secret or ConfigMap.
+                items:
+                  description: EnvFromSource represents the source of a set of ConfigMaps
+                  properties:
+                    configMapRef:
+                      description: The ConfigMap to select from
+                      properties:
+                        name:
+                          default: ""
+                          description: |-
+                            Name of the referent.
+                            This field is effectively required, but due to backwards compatibility is
+                            allowed to be empty. Instances of this type with an empty value here are
+                            almost certainly wrong.
+                            TODO: Add other useful fields. apiVersion, kind, uid?
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
+                          type: string
+                        optional:
+                          description: Specify whether the ConfigMap must be defined
+                          type: boolean
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    prefix:
+                      description: An optional identifier to prepend to each key in
+                        the ConfigMap. Must be a C_IDENTIFIER.
+                      type: string
+                    secretRef:
+                      description: The Secret to select from
+                      properties:
+                        name:
+                          default: ""
+                          description: |-
+                            Name of the referent.
+                            This field is effectively required, but due to backwards compatibility is
+                            allowed to be empty. Instances of this type with an empty value here are
+                            almost certainly wrong.
+                            TODO: Add other useful fields. apiVersion, kind, uid?
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            TODO: Drop `kubebuilder:default` when controller-gen doesn't need it https://github.com/kubernetes-sigs/kubebuilder/issues/3896.
+                          type: string
+                        optional:
+                          description: Specify whether the Secret must be defined
+                          type: boolean
+                      type: object
+                      x-kubernetes-map-type: atomic
+                  type: object
+                type: array
+              features:
+                description: |-
+                  Features that the model supports.
+                  Dictates the APIs that are available for the model.
+                items:
+                  enum:
+                  - TextGeneration
+                  - TextEmbedding
+                  - SpeechToText
+                  type: string
+                type: array
+              files:
+                description: Files to be mounted in the model Pods.
+                items:
+                  description: File represents a file to be mounted in the model pod.
+                  properties:
+                    content:
+                      description: |-
+                        Content of the file to be mounted.
+                        Will be injected into a ConfigMap and mounted in the model Pods.
+                      maxLength: 100000
+                      type: string
+                    path:
+                      description: |-
+                        Path where the file should be mounted in the pod.
+                        Must be an absolute path.
+                      maxLength: 1024
+                      type: string
+                      x-kubernetes-validations:
+                      - message: Path must be an absolute path, starting with /, and
+                          must not contain a ':' character.
+                        rule: self.startsWith('/') && !self.contains(':')
+                  required:
+                  - content
+                  - path
+                  type: object
+                maxItems: 10
+                type: array
+              image:
+                description: |-
+                  Image to be used for the server process.
+                  Will be set from ResourceProfile + Engine if not specified.
+                type: string
+              loadBalancing:
+                default: {}
+                description: |-
+                  LoadBalancing configuration for the model.
+                  If not specified, a default is used based on the engine and request.
+                properties:
+                  prefixHash:
+                    default: {}
+                    properties:
+                      meanLoadFactor:
+                        default: 125
+                        description: |-
+                          MeanLoadPercentage is the percentage that any given endpoint's load must not exceed
+                          over the mean load of all endpoints in the hash ring. Defaults to 125% which is
+                          a widely accepted value for the Consistent Hashing with Bounded Loads algorithm.
+                        minimum: 100
+                        type: integer
+                      prefixCharLength:
+                        default: 100
+                        description: PrefixCharLength is the number of characters
+                          to count when building the prefix to hash.
+                        type: integer
+                      replication:
+                        default: 256
+                        description: |-
+                          Replication is the number of replicas of each endpoint on the hash ring.
+                          Higher values will result in a more even distribution of load but will
+                          decrease lookup performance.
+                        type: integer
+                        x-kubernetes-validations:
+                        - message: replication is immutable.
+                          rule: self == oldSelf
+                    type: object
+                  strategy:
+                    default: LeastLoad
+                    enum:
+                    - LeastLoad
+                    - PrefixHash
+                    type: string
+                type: object
+              maxReplicas:
+                description: |-
+                  MaxReplicas is the maximum number of Pod replicas that the model can scale up to.
+                  Empty value means no limit.
+                format: int32
+                minimum: 1
+                type: integer
+              minReplicas:
+                description: |-
+                  MinReplicas is the minimum number of Pod replicas that the model can scale down to.
+                  Note: 0 is a valid value.
+                format: int32
+                minimum: 0
+                type: integer
+              owner:
+                description: |-
+                  Owner of the model. Used solely to populate the owner field in the
+                  OpenAI /v1/models endpoint.
+                  DEPRECATED.
+                type: string
+              priorityClassName:
+                description: |-
+                  PriorityClassName sets the priority class for all pods created for this model.
+                  If specified, the PriorityClass must exist before the model is created.
+                  This is useful for implementing priority and preemption for models.
+                type: string
+              replicas:
+                description: |-
+                  Replicas is the number of Pod replicas that should be actively
+                  serving the model. KubeAI will manage this field unless AutoscalingDisabled
+                  is set to true.
+                format: int32
+                type: integer
+              resourceProfile:
+                description: |-
+                  ResourceProfile required to serve the model.
+                  Use the format "<resource-profile-name>:<count>".
+                  Example: "nvidia-gpu-l4:2" - 2x NVIDIA L4 GPUs.
+                  Must be a valid ResourceProfile defined in the system config.
+                type: string
+              scaleDownDelaySeconds:
+                default: 30
+                description: |-
+                  ScaleDownDelay is the minimum time before a deployment is scaled down after
+                  the autoscaling algorithm determines that it should be scaled down.
+                format: int64
+                type: integer
+              targetRequests:
+                default: 100
+                description: |-
+                  TargetRequests is average number of active requests that the autoscaler
+                  will try to maintain on model server Pods.
+                format: int32
+                minimum: 1
+                type: integer
+              url:
+                description: |-
+                  URL of the model to be served.
+                  Currently the following formats are supported:
+
+
+                  For VLLM, FasterWhisper, Infinity engines:
+
+
+                  "hf://<repo>/<model>"
+                  "pvc://<pvcName>"
+                  "pvc://<pvcName>/<pvcSubpath>"
+                  "gs://<bucket>/<path>" (only with cacheProfile)
+                  "oss://<bucket>/<path>" (only with cacheProfile)
+                  "s3://<bucket>/<path>" (only with cacheProfile)
+
+
+                  For OLlama engine:
+
+
+                  "ollama://<model>"
+                type: string
+                x-kubernetes-validations:
+                - message: url must start with "hf://", "pvc://", "ollama://", "s3://",
+                    "gs://", or "oss://" and not be empty.
+                  rule: self.startsWith("hf://") || self.startsWith("pvc://") || self.startsWith("ollama://")
+                    || self.startsWith("s3://") || self.startsWith("gs://") || self.startsWith("oss://")
+            required:
+            - engine
+            - features
+            - scaleDownDelaySeconds
+            - targetRequests
+            - url
+            type: object
+            x-kubernetes-validations:
+            - message: cacheProfile is only supported with urls of format "hf://...",
+                "s3://...", "gs://...", or "oss://..." at the moment.
+              rule: '!has(self.cacheProfile) || self.url.startsWith("hf://") || self.url.startsWith("s3://")
+                || self.url.startsWith("gs://") || self.url.startsWith("oss://")'
+            - message: urls of format "gs://..." only supported when using a cacheProfile
+              rule: '!self.url.startsWith("gs://") || has(self.cacheProfile)'
+            - message: urls of format "oss://..." only supported when using a cacheProfile
+              rule: '!self.url.startsWith("oss://") || has(self.cacheProfile)'
+            - message: minReplicas should be less than or equal to maxReplicas.
+              rule: '!has(self.maxReplicas) || self.minReplicas <= self.maxReplicas'
+            - message: adapters only supported with VLLM engine.
+              rule: '!has(self.adapters) || self.engine == "VLLM"'
+            - message: url is immutable when using cacheProfile.
+              rule: '!has(oldSelf.cacheProfile) || self.url == oldSelf.url'
+            - message: All file paths must be unique.
+              rule: '!has(self.files) || self.files.size() <= 1 || !self.files.exists(f,
+                self.files.filter(other, other.path == f.path).size() > 1)'
+          status:
+            description: ModelStatus defines the observed state of Model.
+            properties:
+              cache:
+                properties:
+                  loaded:
+                    type: boolean
+                required:
+                - loaded
+                type: object
+              replicas:
+                properties:
+                  all:
+                    format: int32
+                    type: integer
+                  ready:
+                    format: int32
+                    type: integer
+                required:
+                - all
+                - ready
+                type: object
+            type: object
+        type: object
+        x-kubernetes-validations:
+        - message: name must not exceed 40 characters.
+          rule: size(self.metadata.name) <= 40
+    served: true
+    storage: true
+    subresources:
+      scale:
+        specReplicasPath: .spec.replicas
+        statusReplicasPath: .status.replicas.all
+      status: {}
+---
+# Source: kubeai/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubeai
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - "batch"
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - pods/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - "*"
+- apiGroups:
+  - kubeai.org
+  resources:
+  - models
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - kubeai.org
+  resources:
+  - models/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - kubeai.org
+  resources:
+  - models/scale
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - kubeai.org
+  resources:
+  - models/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+---
+# Source: kubeai/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeai
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kubeai
+subjects:
+- kind: ServiceAccount
+  name: kubeai
+---
+# Source: kubeai/charts/open-webui/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-webui
+  namespace: default
+  labels:
+    helm.sh/chart: open-webui-6.4.0
+    app.kubernetes.io/version: "0.6.5"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/component: open-webui
+spec:
+  selector:
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/component: open-webui
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    name: http
+    port: 80
+    targetPort: http
+---
+# Source: kubeai/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubeai
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+---
+# Source: kubeai/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubeai
+  labels:
+    helm.sh/chart: kubeai-0.21.0
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/version: "v0.21.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubeai
+      app.kubernetes.io/instance: kubeai
+  template:
+    metadata:
+      annotations:
+        # Recreate Pods on update of ConfigMap b/c hot reload is not supported.
+        checksum/config: c97eac10f9593fc7f1dc233600377cc7e9812204faf4057ea36d5b38d40a9072
+      labels:
+        helm.sh/chart: kubeai-0.21.0
+        app.kubernetes.io/name: kubeai
+        app.kubernetes.io/instance: kubeai
+        app.kubernetes.io/version: "v0.21.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: kubeai
+      securityContext:
+        runAsNonRoot: true
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: kubeai
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+          image: "substratusai/kubeai:v0.21.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            []
+          command:
+            - /app/manager
+          env:
+          - name: CONFIG_PATH
+            value: "/app/config/system.yaml"
+          # Configure kubeai to only manage objects in its own namespace.
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 120
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+      volumes:
+        - name: config
+          configMap:
+            name: kubeai-config
+---
+# Source: kubeai/charts/open-webui/templates/workload-manager.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: open-webui
+  namespace: default
+  labels:
+    helm.sh/chart: open-webui-6.4.0
+    app.kubernetes.io/version: "0.6.5"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kubeai
+    app.kubernetes.io/component: open-webui
+spec:
+  replicas: 1
+  serviceName: open-webui
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kubeai
+      app.kubernetes.io/component: open-webui
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: open-webui-6.4.0
+        app.kubernetes.io/version: "0.6.5"
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: kubeai
+        app.kubernetes.io/component: open-webui
+    spec:
+      initContainers:
+      - name: copy-app-data
+        image: ghcr.io/open-webui/open-webui:0.6.5
+        imagePullPolicy: IfNotPresent
+        command: ['sh', '-c', 'cp -R -n /app/backend/data/* /tmp/app-data/']
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+          runAsUser: 0
+        volumeMounts:
+        - name: data
+          mountPath: /tmp/app-data
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      serviceAccountName: open-webui
+      containers:
+      - name: open-webui
+        image: ghcr.io/open-webui/open-webui:0.6.5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+          runAsUser: 0
+        volumeMounts:
+        - name: data
+          mountPath: /app/backend/data
+        env:
+        - name: "ENABLE_OLLAMA_API"
+          value: "False"
+        # If only an OpenAI API value is set, set it to OPENAI_API_BASE_URL
+        - name: "OPENAI_API_BASE_URL"
+          value: "http://kubeai/openai/v1"
+        - name: WEBUI_AUTH
+          value: "False"
+        - name: OPENAI_API_KEYS
+          value: not-used
+        - name: SHOW_ADMIN_DETAILS
+          value: "false"
+        - name: SAFE_MODE
+          value: "true"
+        - name: ENABLE_EVALUATION_ARENA_MODELS
+          value: "False"
+        tty: true
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: open-webui
+---
+# Source: kubeai/templates/huggingface-secret.yaml
+# Only create the secret if the token is not empty.
+# See: https://github.com/substratusai/kubeai/issues/232
+---
+# Source: kubeai/templates/securityContextConstraints.yaml
+# Create securityContextConstraints for the model pods if running on OpenShift.
+# This is needed because pods in OpenShift run with the restricted-v2 SCC by
+# default which do not allow a container to start with uid=0
+# (The model pod images run as the root user)
+
