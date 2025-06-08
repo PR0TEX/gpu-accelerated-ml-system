@@ -25,13 +25,13 @@ spec:
     spec:
       containers:
       - name: mlflow
-        image: ghcr.io/mlflow/mlflow:latest
+        image: imichael/mlflow:latest
+        command: ["mlflow", "server"]
         args:
-          - mlflow
-          - server
           - --backend-store-uri=postgresql://mlflow:mlflow123@mlflow-postgres/mlflow
           - --default-artifact-root=file:/mlflow/artifacts
-          - --host=0.0.0.0
+          - "--host=0.0.0.0"
+          - "--port=5000"
         ports:
           - containerPort: 5000
         volumeMounts:
