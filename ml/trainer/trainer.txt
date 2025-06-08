@@ -7,3 +7,7 @@ docker build -t your-dockerhub-username/llm-trainer:latest .
 docker push your-dockerhub-username/llm-trainer:latest
 
 export MLFLOW_TRACKING_URI=http://your-mlflow-url:5000
+
+# run workflow
+
+argo-workflow submit train-llm.yaml -n argo --watch

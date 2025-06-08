@@ -1,0 +1,18 @@
+# Ignore everything by default
+**
+
+# Allow only specific files you need
+!train.py
+!Dockerfile
+!.dockerignore
+
+# Optional exclusions
+__pycache__/
+*.py[cod]
+*.ipynb
+*.log
+data/
+logs/
+checkpoints/
+venv/
+.env
