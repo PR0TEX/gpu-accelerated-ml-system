@@ -29,8 +29,8 @@ spec:
         resources:
           limits:
             nvidia.com/gpu: 1
-            memory: 8Gi
-            cpu: "4"
+            memory: 6Gi
+            cpu: "3"
       outputs:
         artifacts:
           - name: trained-model

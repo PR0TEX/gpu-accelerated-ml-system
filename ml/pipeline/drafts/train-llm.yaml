@@ -13,7 +13,10 @@
               nvidia.com/gpu: 1
               memory: 6Gi
               cpu: "4"
+        nodeSelector:
+          node-type: gpu
     podSpecPatch: |
+      runtimeClassName: nvidia
       containers:
       - name: main
         securityContext:
