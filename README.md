@@ -58,3 +58,11 @@ kubectl apply -f kubeai/gpu-model.yaml
 This will create a model resource, which will pull the model specified in the manifest and create a pod serving that model. After the pod is created, the model should be visible in kubeai UI.
 
 NOTE: You might need to send a request to the model in the UI for the pod to start creating. We should fix this so the pod is created automatically if possible.
+
+
+## starting the mlflow dashboard
+
+```
+kubectl apply -f ml/mlflow
+kubectl port-forward svc/mlflow-service 5000:5000   # might need to wait for pods
+```
