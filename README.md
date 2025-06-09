@@ -66,3 +66,34 @@ NOTE: You might need to send a request to the model in the UI for the pod to sta
 kubectl apply -f ml/mlflow
 kubectl port-forward svc/mlflow-service 5000:5000   # might need to wait for pods
 ```
+## MLflow Auto-Register for KubeAI (Non-Dockerfile Version)
+
+### Apply RBAC permissions
+```
+kubectl apply -f autoregister-rbac.yaml
+```
+
+### Create the ConfigMap with the registration script
+```
+kubectl apply -f autoregister-configmap.yaml
+```
+
+### Deploy the registration job
+```
+kubectl apply -f autoregister-deployment.yaml
+```
+
+### Verify that the Pod is running
+```
+kubectl get pods -l app=model-autoregister
+```
+
+### View logs to check for successful registration
+```
+kubectl logs -l app=model-autoregister
+```
+You should see output like:
+```
+Successfully registered model 'gemma2-2b-cpu'.
+Successfully registered model 'mistral-gpu'.
+```
