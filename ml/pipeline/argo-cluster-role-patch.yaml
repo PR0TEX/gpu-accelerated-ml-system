@@ -1,0 +1,28 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-cluster-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/exec", "pods/log", "persistentvolumeclaims", "persistentvolumeclaims/finalizers", "events", "configmaps", "secrets", "serviceaccounts"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["create", "get", "delete"]
+
+  - apiGroups: ["argoproj.io"]
+    resources:
+      - workflows
+      - workflows/finalizers
+      - workflowtemplates
+      - workflowtemplates/finalizers
+      - clusterworkflowtemplates
+      - clusterworkflowtemplates/finalizers
+      - cronworkflows
+      - cronworkflows/finalizers
+      - workflowartifactgctasks
+      - workflowtasksets
+      - workflowtasksets/finalizers
+      - workflowtaskresults
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]

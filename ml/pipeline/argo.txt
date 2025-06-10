@@ -1,1 +1,9 @@
 argo submit argo/train-llm.yaml --watch
+
+      - workflowtaskresults
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+
+trzeba dodac taki role binding do sa zeby step w workflowe tworzacy poda mogl dzialac
+
+aktualnie zostalo zmieniona podstawowa cr, trzeba przywrocic
+
