@@ -1,0 +1,12 @@
+cd ml-pipeline/docker/trainer
+
+# Build image
+docker build -t your-dockerhub-username/llm-trainer:latest .
+
+# Push image
+docker push your-dockerhub-username/llm-trainer:latest
+# run workflow
+
+argo-workflow submit train-llm.yaml -n argo --watch
+
+

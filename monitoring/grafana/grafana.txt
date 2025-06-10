@@ -1,0 +1,30 @@
+https://github.com/NVIDIA/dcgm-exporter?tab=readme-ov-file
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Install the Kube Prometheus Stack
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  --namespace monitoring --create-namespace
+  -f prometheus-values.yaml
+
+# get password to login
+kubectl get secret --namespace monitoring kube-prometheus-stack-grafana \
+  -o jsonpath="{.data.admin-password}" | base64 --decode
+echo
+
+# export grafana
+kubectl port-forward svc/kube-prometheus-stack-grafana -n monitoring 3000:80
+
+# export prometeus ui
+kubectl port-forward svc/kube-prometheus-stack-prometheus -n monitoring 9090:9090
+
+# https://github.com/NVIDIA/dcgm-exporter
+
+kubectl apply -f dcgm-exporter.yaml -n monitoring
+
+# default grafana credentials
+# admin
+# prom-operatorgit 
+
+# grafana dashboard id: 12239

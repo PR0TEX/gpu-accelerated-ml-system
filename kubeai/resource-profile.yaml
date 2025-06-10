@@ -1,0 +1,14 @@
+apiVersion: kubeai.org/v1
+kind: ResourceProfile
+metadata:
+  name: custom-1660ti
+spec:
+  nodeSelector:
+    gpu-type: 1660ti
+  resources:
+    limits:
+      nvidia.com/gpu: 1
+    requests:
+      cpu: "4"
+      memory: 4Gi
+      nvidia.com/gpu: 1

@@ -1,0 +1,16 @@
+apiVersion: kubeai.org/v1
+kind: ResourceProfile
+metadata:
+  namespace: gpu-setup
+resourceProfiles:
+  any-cuda-gpu:
+    nodeSelector:
+      node-type: gpu
+    limits:
+      nvidia.com/gpu: "1"
+    requests:
+      nvidia.com/gpu: "1"
+      cpu: "3"
+      memory: "6Gi"
+    runtimeClassName: "nvidia"
+

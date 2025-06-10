@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-autoregister
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-autoregister
+  template:
+    metadata:
+      labels:
+        app: model-autoregister
+    spec:
+      serviceAccountName: autoregister-sa
+      containers:
+        - name: autoregister
+          image: python:3.10-slim
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              apt-get update && apt-get install -y python3-pip &&
+              pip3 install mlflow  kubernetes &&
+              python3 /app/auto_register_models.py
+          volumeMounts:
+            - name: script-volume
+              mountPath: /app
+      volumes:
+        - name: script-volume
+          configMap:
+            name: autoregister-script

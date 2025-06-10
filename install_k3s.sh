@@ -29,6 +29,18 @@ setup_gpu_on_k3s() {
     echo "[INFO]  Done!"
 
     export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    VAR_NAME="KUBECONFIG"
+    VAR_VALUE="/etc/rancher/k3s/k3s.yaml"
+
+    PROFILE_FILE="$HOME/.bashrc"
+
+    # Check if the variable export already exists to avoid duplicates
+    if ! grep -q "export $VAR_NAME=" "$PROFILE_FILE"; then
+        echo "export $VAR_NAME=\"$VAR_VALUE\"" >> "$PROFILE_FILE"
+        echo "Added export $VAR_NAME=\"$VAR_VALUE\" to $PROFILE_FILE"
+    else
+        echo "$VAR_NAME is already set in $PROFILE_FILE"
+    fi
 
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     
@@ -36,6 +48,14 @@ setup_gpu_on_k3s() {
     kubectl apply -f $SCRIPT_DIR/nvidia-runtimeclass.yaml -n gpu-setup
     kubectl apply -f $SCRIPT_DIR/nvidia-device-plugin.yaml
     kubectl apply -f $SCRIPT_DIR/init-pod.yaml -n gpu-setup
+
+    # Label the node so that it's marked as a gpu provider
+    NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
+
+    LABEL_KEY="node-type"
+    LABEL_VALUE="gpu"
+
+    kubectl label node "$NODE_NAME" "$LABEL_KEY=$LABEL_VALUE" --overwrite
 }
 
 install_nvidia_toolkit

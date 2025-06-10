@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlflow-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+spec:
+  selector:
+    matchLabels:
+      app: mlflow
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: imichael/mlflow:latest
+        command: ["mlflow", "server"]
+        args:
+          - --backend-store-uri=postgresql://mlflow:mlflow123@mlflow-postgres/mlflow
+          - --default-artifact-root=file:/mlflow/artifacts
+          - "--host=0.0.0.0"
+          - "--port=5000"
+        ports:
+          - containerPort: 5000
+        volumeMounts:
+          - mountPath: /mlflow/artifacts
+            name: mlflow-storage
+      volumes:
+        - name: mlflow-storage
+          persistentVolumeClaim:
+            claimName: mlflow-pvc

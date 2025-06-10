@@ -1,0 +1,9 @@
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  name: mistral-gpu
+spec:
+  features: [TextGeneration]
+  url: ollama://mistral
+  engine: OLlama
+  resourceProfile: my-custom-gpu:1
