@@ -6,7 +6,7 @@ import shutil
 model_path = "/app/model"
 repo_name = "your-username/your-model-name"
 local_repo_dir = "/tmp/local_model_repo"
-token = "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"
+token = ""
 # Create repo on HF (skip if already created)
 api = HfApi()
 api.create_repo(name=repo_name.split("/")[-1], token=token, exist_ok=True)
