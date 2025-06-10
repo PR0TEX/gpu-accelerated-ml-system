@@ -1,9 +1,9 @@
 apiVersion: kubeai.org/v1
 kind: Model
 metadata:
-  name: mistral-gpu
+  name: model-250
 spec:
   features: [TextGeneration]
-  url: ollama://mistral
-  engine: OLlama
+  url: hf://pr0tex/model-250
+  engine: VLLM
   resourceProfile: any-cuda-gpu:1
