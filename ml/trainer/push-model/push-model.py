@@ -4,12 +4,12 @@ import shutil
 
 # Define variables
 model_path = "/app/model"
-repo_name = "your-username/your-model-name"
+repo_name = "pr0tex/model-250"
 local_repo_dir = "/tmp/local_model_repo"
 token = "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"
 # Create repo on HF (skip if already created)
 api = HfApi()
-api.create_repo(name=repo_name.split("/")[-1], token=token, exist_ok=True)
+api.create_repo(repo_id=repo_name.split("/")[-1], token=token, exist_ok=True)
 
 # Clone the repo locally
 repo_url = api.get_repo_url(repo_name, token=token)
