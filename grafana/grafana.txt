@@ -25,4 +25,6 @@ kubectl apply -f dcgm-exporter.yaml -n monitoring
 
 # default grafana credentials
 # admin
-# prom-operator
+# prom-operatorgit 
+
+# grafana dashboard id: 12239
