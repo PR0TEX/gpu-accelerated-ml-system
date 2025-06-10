@@ -1,22 +1,19 @@
-from huggingface_hub import HfApi, Repository
+from huggingface_hub import HfApi, upload_folder
 import os
-import shutil
 
-# Define variables
+token = "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"  # or hardcode it
 model_path = "/app/model"
 repo_name = "pr0tex/model-250"
-local_repo_dir = "/tmp/local_model_repo"
-token = "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"
-# Create repo on HF (skip if already created)
+
+# Create repo (safe if it exists)
 api = HfApi()
-api.create_repo(repo_id=repo_name.split("/")[-1], token=token, exist_ok=True)
+api.create_repo(repo_id=repo_name, token=token, exist_ok=True)
 
-# Clone the repo locally
-repo_url = api.get_repo_url(repo_name, token=token)
-repo = Repository(local_dir=local_repo_dir, clone_from=repo_url, use_auth_token=token)
-
-# Copy model files
-shutil.copytree(model_path, local_repo_dir, dirs_exist_ok=True)
-
-# Push to hub
-repo.push_to_hub(commit_message="Initial model push from pod")
+# Upload folder to Hub
+upload_folder(
+    folder_path=model_path,
+    repo_id=repo_name,
+    repo_type="model",
+    token=token,
+    commit_message="Initial model upload from pod"
+)
