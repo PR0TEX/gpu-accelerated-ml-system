@@ -4,4 +4,4 @@ RUN pip install huggingface_hub gitpython
 WORKDIR /app
 COPY push-model.py .
 
-ENTRYPOINT ["python", "/app/push.py"]
+ENTRYPOINT ["python", "/app/push-model.py"]
